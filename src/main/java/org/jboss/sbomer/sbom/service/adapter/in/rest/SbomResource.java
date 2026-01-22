@@ -70,6 +70,19 @@ public class SbomResource {
     }
 
     @GET
+    @Path("/requests/{id}")
+    @Operation(summary = "Get Request Details", description = "Fetch a specific SBOM generation request by ID.")
+    @APIResponse(responseCode = "200", description = "Found")
+    @APIResponse(responseCode = "404", description = "Request not found")
+    public Response getRequest(@PathParam("id") String requestId) {
+        RequestRecord record = sbomAdministration.getRequest(requestId);
+        if (record == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(record).build();
+    }
+
+    @GET
     @Path("/requests/{requestId}/generations")
     @Operation(summary = "List Generations for Request", description = "Paginated list of generations belonging to a specific request ID.")
     public Response fetchGenerations(@PathParam("requestId") String requestId,

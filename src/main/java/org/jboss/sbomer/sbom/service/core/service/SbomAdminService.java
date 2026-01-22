@@ -46,6 +46,11 @@ public class SbomAdminService implements SbomAdministration {
     }
 
     @Override
+    public RequestRecord getRequest(String requestId) {
+        return statusRepository.findRequestById(requestId);
+    }
+
+    @Override
     public Page<GenerationRecord> fetchGenerations(String requestId, int pageIndex, int pageSize) {
         return statusRepository.findGenerationsByRequestId(requestId, pageIndex, pageSize);
     }

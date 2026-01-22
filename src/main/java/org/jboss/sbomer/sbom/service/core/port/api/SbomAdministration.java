@@ -25,6 +25,14 @@ public interface SbomAdministration {
     Page<RequestRecord> fetchRequests(int pageIndex, int pageSize);
 
     /**
+     * Retrieves a single SBOM request by its ID.
+     *
+     * @param requestId The unique ID of the request.
+     * @return The RequestRecord, or null if not found.
+     */
+    RequestRecord getRequest(String requestId);
+
+    /**
      * Fetches a paginated list of generations belonging to a specific request.
      *
      * @param requestId The ID of the parent request.
