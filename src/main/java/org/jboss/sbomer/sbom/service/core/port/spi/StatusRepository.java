@@ -44,6 +44,11 @@ public interface StatusRepository {
     GenerationRecord findGenerationById(String generationId);
 
     /**
+     * Finds all Generations with pagination support.
+     */
+    Page<GenerationRecord> findAllGenerations(int pageIndex, int pageSize);
+
+    /**
      * Find generations by request ID
      */
     List<GenerationRecord> findGenerationsByRequestId(String requestId);

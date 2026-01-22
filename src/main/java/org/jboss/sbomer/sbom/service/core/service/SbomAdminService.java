@@ -31,7 +31,8 @@ public class SbomAdminService implements SbomAdministration {
     SbomMapper sbomMapper;
 
     @Inject
-    public SbomAdminService(StatusRepository statusRepository, GenerationScheduler generationScheduler, EnhancementScheduler enhancementScheduler, SbomMapper sbomMapper) {
+    public SbomAdminService(StatusRepository statusRepository, GenerationScheduler generationScheduler,
+            EnhancementScheduler enhancementScheduler, SbomMapper sbomMapper) {
         this.statusRepository = statusRepository;
         this.generationScheduler = generationScheduler;
         this.enhancementScheduler = enhancementScheduler;
@@ -51,8 +52,13 @@ public class SbomAdminService implements SbomAdministration {
     }
 
     @Override
-    public Page<GenerationRecord> fetchGenerations(String requestId, int pageIndex, int pageSize) {
+    public Page<GenerationRecord> fetchGenerationsForRequest(String requestId, int pageIndex, int pageSize) {
         return statusRepository.findGenerationsByRequestId(requestId, pageIndex, pageSize);
+    }
+
+    @Override
+    public Page<GenerationRecord> fetchGenerations(int pageIndex, int pageSize) {
+        return statusRepository.findAllGenerations(pageIndex, pageSize);
     }
 
     @Override
@@ -76,7 +82,8 @@ public class SbomAdminService implements SbomAdministration {
         }
 
         if (GenerationStatus.FAILED != record.getStatus()) {
-            throw new IllegalStateException("Cannot retry generation in status: " + record.getStatus() + ". Only FAILED generations can be retried.");
+            throw new IllegalStateException("Cannot retry generation in status: " + record.getStatus()
+                    + ". Only FAILED generations can be retried.");
         }
 
         log.info("Retrying generation: {}", generationId);
@@ -109,7 +116,8 @@ public class SbomAdminService implements SbomAdministration {
         }
 
         if (EnhancementStatus.FAILED != record.getStatus()) {
-            throw new IllegalStateException("Cannot retry enhancement in status: " + record.getStatus() + ". Only FAILED enhancements can be retried.");
+            throw new IllegalStateException("Cannot retry enhancement in status: " + record.getStatus()
+                    + ". Only FAILED enhancements can be retried.");
         }
 
         GenerationRecord parentGeneration = statusRepository.findGenerationById(record.getGenerationId());
@@ -148,6 +156,8 @@ public class SbomAdminService implements SbomAdministration {
         return parent.getEnhancements().stream()
                 .filter(e -> e.getIndex() == targetIndex - 1)
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Could not find previous enhancement with index " + (targetIndex - 1)));
+                .orElseThrow(() -> new IllegalStateException(
+                        "Could not find previous enhancement with index " + (targetIndex - 1)));
     }
+
 }

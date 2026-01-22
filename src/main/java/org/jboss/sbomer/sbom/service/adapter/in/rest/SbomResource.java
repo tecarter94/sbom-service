@@ -88,7 +88,7 @@ public class SbomResource {
     public Response fetchGenerations(@PathParam("requestId") String requestId,
                                      @QueryParam("page") @DefaultValue("0") int page,
                                      @QueryParam("size") @DefaultValue("20") int size) {
-        Page<GenerationRecord> result = sbomAdministration.fetchGenerations(requestId, page, size);
+        Page<GenerationRecord> result = sbomAdministration.fetchGenerationsForRequest(requestId, page, size);
         return Response.ok(result).build();
     }
 
@@ -107,6 +107,16 @@ public class SbomResource {
         return Response.ok(records).build();
     }
 
+
+    @GET
+    @Path("/generations")
+    @Operation(summary = "List Generations", description = "Paginated list of generations.")
+    public Response fetchGenerations(@QueryParam("page") @DefaultValue("0") int page,
+                                  @QueryParam("size") @DefaultValue("20") int size) {
+        Page<GenerationRecord> result = sbomAdministration.fetchGenerations(page, size);
+        return Response.ok(result).build();
+    }
+
     @GET
     @Path("/generations/{id}")
     @Operation(summary = "Get Generation Details", description = "Fetch a specific generation record by ID.")
@@ -119,6 +129,7 @@ public class SbomResource {
         }
         return Response.ok(record).build();
     }
+
 
     // --- ACTION ENDPOINTS ---
     // todo auth

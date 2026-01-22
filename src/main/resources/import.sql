@@ -7,3 +7,9 @@ INSERT INTO requests (id, status, creationDate) VALUES
   ('dev-req-128', 'FAILED',      '2020-06-12 13:15:00'),
   ('dev-req-129', 'FINISHED',    '2020-07-20 07:45:00'),
   ('dev-req-130', 'FINISHED',    '2020-08-03 10:00:00');
+
+
+
+INSERT INTO generations (id, request_id, status) VALUES
+  ('dev-gen-001', 'dev-req-124', 'FINISHED'),
+  ('dev-gen-002', 'dev-req-126', 'FINISHED');

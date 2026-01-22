@@ -40,7 +40,16 @@ public interface SbomAdministration {
      * @param pageSize  The number of records per page.
      * @return A page of GenerationRecords.
      */
-    Page<GenerationRecord> fetchGenerations(String requestId, int pageIndex, int pageSize);
+    Page<GenerationRecord> fetchGenerationsForRequest(String requestId, int pageIndex, int pageSize);
+
+
+    /**
+     * Fetches a paginated list of all generations.
+     * @param pageIndex The 0-based page index.
+     * @param pageSize The number of records per page.
+     * @return A page of GenerationRecords.
+     */
+    Page<GenerationRecord> fetchGenerations(int pageIndex, int pageSize);
 
     /**
      * Retrieves a single generation by its ID.
@@ -83,4 +92,6 @@ public interface SbomAdministration {
      * @throws IllegalStateException    if the enhancement is not in a FAILED state or parent generation is missing.
      */
     void retryEnhancement(String enhancementId);
+
+
 }
