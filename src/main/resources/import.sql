@@ -1,4 +1,3 @@
--- Use a fixed placeholder creation date instead of the current timestamp
 INSERT INTO requests (id, status, creationDate) VALUES
   ('dev-req-124', 'FINISHED',    '2020-02-01 09:00:00'),
   ('dev-req-125', 'NEW', '2020-03-05 08:30:00'),
@@ -9,7 +8,11 @@ INSERT INTO requests (id, status, creationDate) VALUES
   ('dev-req-130', 'FINISHED',    '2020-08-03 10:00:00');
 
 
-
 INSERT INTO generations (id, request_id, status) VALUES
   ('dev-gen-001', 'dev-req-124', 'FINISHED'),
   ('dev-gen-002', 'dev-req-126', 'FINISHED');
+
+
+INSERT INTO enhancements (id, generation_id, status, "index") VALUES
+  ('dev-enh-001', 'dev-gen-001', 'FINISHED', 1),
+  ('dev-enh-002', 'dev-gen-002', 'FINISHED', 1);
