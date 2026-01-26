@@ -107,6 +107,21 @@ public class SbomAdminService implements SbomAdministration {
         generationScheduler.schedule(retryEvent);
     }
 
+    @Override
+    public List<EnhancementRecord> getEnhancementsForGeneration(String generationId) {
+        return statusRepository.findEnhancementsByGenerationId(generationId);
+    }
+
+    @Override
+    public Page<EnhancementRecord> fetchEnhancements(int pageIndex, int pageSize) {
+        return statusRepository.findAllEnhancements(pageIndex, pageSize);
+    }
+
+    @Override
+    public EnhancementRecord getEnhancement(String enhancementId) {
+        return statusRepository.findEnhancementById(enhancementId);
+    }
+
     public void retryEnhancement(String enhancementId) {
         // Repository implementation handles locking/transaction here
         EnhancementRecord record = statusRepository.findEnhancementById(enhancementId);

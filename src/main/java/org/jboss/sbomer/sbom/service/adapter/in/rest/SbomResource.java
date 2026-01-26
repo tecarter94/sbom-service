@@ -22,6 +22,7 @@ import org.jboss.sbomer.sbom.service.adapter.in.rest.dto.GenerationRequestDTO;
 import org.jboss.sbomer.sbom.service.adapter.in.rest.dto.GenerationRequestsDTO;
 import org.jboss.sbomer.sbom.service.adapter.in.rest.dto.PublisherDTO;
 import org.jboss.sbomer.sbom.service.adapter.in.rest.model.Page;
+import org.jboss.sbomer.sbom.service.core.domain.dto.EnhancementRecord;
 import org.jboss.sbomer.sbom.service.core.domain.dto.GenerationRecord;
 import org.jboss.sbomer.sbom.service.core.domain.dto.RequestRecord;
 import org.jboss.sbomer.sbom.service.core.port.api.SbomAdministration;
@@ -154,6 +155,39 @@ public class SbomResource {
         }
     }
 
+
+    @GET
+    @Path("/enhancements/{id}")
+    @Operation(summary = "Get Enhancement Details", description = "Fetch a specific enhancement record by ID.")
+    @APIResponse(responseCode = "200", description = "Found")
+    @APIResponse(responseCode = "404", description = "Enhancement not found")
+    public Response getEnhancement(@PathParam("id") String enhancementId) {
+        EnhancementRecord record = sbomAdministration.getEnhancement(enhancementId);
+        if (record == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(record).build();
+    }
+
+    @GET
+    @Path("/enhancements/generation/{generationId}")
+    @Operation(summary = "List Enhancements for Generation", description = "Get all enhancements for a specific generation ID.")
+    @APIResponse(responseCode = "200", description = "Found")
+    @APIResponse(responseCode = "404", description = "Generation ID not found")
+    @APIResponse(responseCode = "500", description = "Internal server error")
+    public Response getEnhancementsForGeneration(@PathParam("generationId") String generationId) {
+        List<EnhancementRecord> records = sbomAdministration.getEnhancementsForGeneration(generationId);
+        return Response.ok(records).build();
+    }
+
+    @GET
+    @Path("/enhancements")
+    @Operation(summary = "List Enhancements", description = "Paginated list of enhancements.")
+    public Response fetchEnhancements(@QueryParam("page") @DefaultValue("0") int page,
+                                  @QueryParam("size") @DefaultValue("20") int size) {
+        Page<EnhancementRecord> result = sbomAdministration.fetchEnhancements(page, size);
+        return Response.ok(result).build();
+    }
 
     // todo under auth
     @POST

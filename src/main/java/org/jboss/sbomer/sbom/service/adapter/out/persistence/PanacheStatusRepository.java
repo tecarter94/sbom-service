@@ -334,4 +334,31 @@ public class PanacheStatusRepository implements StatusRepository {
                 })
                 .orElseGet(Set::of));
     }
+
+    @Override
+    public List<EnhancementRecord> findEnhancementsByGenerationId(String generationId) {
+        List<EnhancementEntity> enhancementEntities = enhancementRepository.list("generation.id", generationId);
+        return enhancementEntities.stream()
+                .map(enhancementMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public Page<EnhancementRecord> findAllEnhancements(int pageIndex, int pageSize) {
+        PanacheQuery<EnhancementEntity> enhancementEntityPanacheQuery = enhancementRepository.findAll(Sort.by("id"));
+        enhancementEntityPanacheQuery.page(pageIndex, pageSize);
+        List<EnhancementEntity> enhancementEntities = enhancementEntityPanacheQuery.list();
+        long totalHits = enhancementEntityPanacheQuery.count();
+        int totalPages = (int) Math.ceil((double) totalHits / pageSize);
+        List<EnhancementRecord> enhancementRecords = enhancementEntities.stream()
+                .map(enhancementMapper::toDto)
+                .toList();
+        return Page.<EnhancementRecord>builder()
+                .content(enhancementRecords)
+                .totalHits(totalHits)
+                .totalPages(totalPages)
+                .pageIndex(pageIndex)
+                .pageSize(pageSize)
+                .build();
+    }
 }
