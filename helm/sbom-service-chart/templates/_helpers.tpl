@@ -46,7 +46,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "sbom-service-chart.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "sbom-service-chart.name" . }}
+app.kubernetes.io/name: sbomer-sbom-service
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
