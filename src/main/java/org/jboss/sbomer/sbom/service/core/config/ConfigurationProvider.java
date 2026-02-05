@@ -3,7 +3,6 @@ package org.jboss.sbomer.sbom.service.core.config;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.sbomer.sbom.service.core.config.recipe.RecipeConfig;
@@ -20,8 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigurationProvider {
     private SbomerConfig config;
-
-    private static final List<String> supportedTypes = List.of("CONTAINER_IMAGE", "RPM");
 
     @ConfigProperty(name = "sbomer.config.path", defaultValue = "sbomer-config.yaml")
     String configPath;
@@ -50,14 +47,18 @@ public class ConfigurationProvider {
     }
 
     private void validateConfiguration() {
-        List<String> configuredTypes = config.getRecipes().stream()
-            .map(RecipeConfig::getType)
-            .toList();
+        if (config.getRecipes() == null || config.getRecipes().isEmpty()) {
+            throw new IllegalStateException("No recipes configured in " + configPath);
+        }
 
-        for (String required : supportedTypes) {
-            if (!configuredTypes.contains(required)) {
+        // Validate each recipe has required fields
+        for (RecipeConfig recipe : config.getRecipes()) {
+            if (recipe.getType() == null || recipe.getType().isBlank()) {
+                throw new IllegalStateException("Recipe type cannot be null or empty");
+            }
+            if (recipe.getGenerator() == null) {
                 throw new IllegalStateException(
-                    "Required target type not configured: " + required);
+                    "Recipe for type '" + recipe.getType() + "' must have a generator configured");
             }
         }
     }
