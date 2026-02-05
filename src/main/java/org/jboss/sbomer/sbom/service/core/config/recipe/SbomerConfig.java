@@ -14,7 +14,7 @@ public class SbomerConfig {
     private List<RecipeConfig> recipes;
 
     public RecipeConfig getRecipeForType(String targetType) {
-        return recipes.stream().filter(r -> r.getTargetType().equalsIgnoreCase(targetType))
+        return recipes.stream().filter(r -> r.getType().equalsIgnoreCase(targetType))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported target type: " + targetType));
 
