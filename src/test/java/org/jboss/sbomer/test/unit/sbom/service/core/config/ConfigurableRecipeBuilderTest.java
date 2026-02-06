@@ -108,4 +108,47 @@ class ConfigurableRecipeBuilderTest {
         assertThat(recipe1.getGenerator().getName()).isEqualTo(recipe2.getGenerator().getName());
         assertThat(recipe1.getGenerator().getVersion()).isEqualTo(recipe2.getGenerator().getVersion());
     }
+
+    @Test
+    void shouldIncludeGeneratorOptionsForContainerImage() {
+        // When
+        Recipe recipe = recipeBuilder.buildRecipeFor("CONTAINER_IMAGE", "quay.io/example/image:latest");
+
+        // Then
+        assertThat(recipe.getGenerator().getOptions()).isNotEmpty();
+        assertThat(recipe.getGenerator().getOptions()).hasSize(2);
+        assertThat(recipe.getGenerator().getOptions()).containsEntry("format", "cyclonedx-json");
+        assertThat(recipe.getGenerator().getOptions()).containsEntry("scope", "all-layers");
+    }
+
+    @Test
+    void shouldIncludeGeneratorAndEnhancerOptionsForRpm() {
+        // When
+        Recipe recipe = recipeBuilder.buildRecipeFor("RPM", "some-rpm-identifier");
+
+        // Then - Generator options
+        assertThat(recipe.getGenerator().getOptions()).isNotEmpty();
+        assertThat(recipe.getGenerator().getOptions()).hasSize(2);
+        assertThat(recipe.getGenerator().getOptions()).containsEntry("includeSystemScope", "true");
+        assertThat(recipe.getGenerator().getOptions()).containsEntry("outputFormat", "json");
+
+        // Then - Enhancer options
+        assertThat(recipe.getEnhancers()).hasSize(1);
+        assertThat(recipe.getEnhancers().get(0).getOptions()).isNotEmpty();
+        assertThat(recipe.getEnhancers().get(0).getOptions()).hasSize(2);
+        assertThat(recipe.getEnhancers().get(0).getOptions()).containsEntry("enrichMetadata", "true");
+        assertThat(recipe.getEnhancers().get(0).getOptions()).containsEntry("validateLicenses", "false");
+    }
+
+    @Test
+    void shouldPassOptionsFromConfigToRecipe() {
+        // When
+        Recipe recipe = recipeBuilder.buildRecipeFor("RPM", "test-rpm");
+
+        // Then - Verify options are correctly passed from config to recipe
+        assertThat(recipe.getGenerator().getOptions()).isNotEmpty();
+        assertThat(recipe.getGenerator().getOptions()).containsKeys("includeSystemScope", "outputFormat");
+        assertThat(recipe.getEnhancers().get(0).getOptions()).isNotEmpty();
+        assertThat(recipe.getEnhancers().get(0).getOptions()).containsKeys("enrichMetadata", "validateLicenses");
+    }
 }

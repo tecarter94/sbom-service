@@ -33,6 +33,10 @@ class ConfigurationProviderTest {
         assertThat(recipe.getGenerator()).isNotNull();
         assertThat(recipe.getGenerator().getName()).isEqualTo("syft-generator");
         assertThat(recipe.getGenerator().getVersion()).isEqualTo("1.5.0");
+        assertThat(recipe.getGenerator().getOptions()).isNotEmpty();
+        assertThat(recipe.getGenerator().getOptions()).hasSize(2);
+        assertThat(recipe.getGenerator().getOptions()).containsEntry("format", "cyclonedx-json");
+        assertThat(recipe.getGenerator().getOptions()).containsEntry("scope", "all-layers");
         assertThat(recipe.getEnhancers()).isEmpty();
     }
 
@@ -47,9 +51,17 @@ class ConfigurationProviderTest {
         assertThat(recipe.getGenerator()).isNotNull();
         assertThat(recipe.getGenerator().getName()).isEqualTo("cyclonedx-maven-plugin");
         assertThat(recipe.getGenerator().getVersion()).isEqualTo("2.7.9");
+        assertThat(recipe.getGenerator().getOptions()).isNotEmpty();
+        assertThat(recipe.getGenerator().getOptions()).hasSize(2);
+        assertThat(recipe.getGenerator().getOptions()).containsEntry("includeSystemScope", "true");
+        assertThat(recipe.getGenerator().getOptions()).containsEntry("outputFormat", "json");
         assertThat(recipe.getEnhancers()).hasSize(1);
         assertThat(recipe.getEnhancers().get(0).getName()).isEqualTo("rpm-enhancer");
         assertThat(recipe.getEnhancers().get(0).getVersion()).isEqualTo("1.0.0");
+        assertThat(recipe.getEnhancers().get(0).getOptions()).isNotEmpty();
+        assertThat(recipe.getEnhancers().get(0).getOptions()).hasSize(2);
+        assertThat(recipe.getEnhancers().get(0).getOptions()).containsEntry("enrichMetadata", "true");
+        assertThat(recipe.getEnhancers().get(0).getOptions()).containsEntry("validateLicenses", "false");
     }
 
     @Test
@@ -78,5 +90,44 @@ class ConfigurationProviderTest {
         // When/Then
         assertThatThrownBy(() -> configurationProvider.getRecipeForTargetType(null))
             .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldHandleGeneratorOptionsCorrectly() {
+        // When
+        RecipeConfig recipe = configurationProvider.getRecipeForTargetType("CONTAINER_IMAGE");
+
+        // Then
+        assertThat(recipe.getGenerator().getOptions()).isNotEmpty();
+        assertThat(recipe.getGenerator().getOptions()).hasSize(2);
+        assertThat(recipe.getGenerator().getOptions().get("format")).isEqualTo("cyclonedx-json");
+        assertThat(recipe.getGenerator().getOptions().get("scope")).isEqualTo("all-layers");
+    }
+
+    @Test
+    void shouldHandleEnhancerOptionsCorrectly() {
+        // When
+        RecipeConfig recipe = configurationProvider.getRecipeForTargetType("RPM");
+
+        // Then
+        assertThat(recipe.getEnhancers()).isNotEmpty();
+        assertThat(recipe.getEnhancers().get(0).getOptions()).isNotEmpty();
+        assertThat(recipe.getEnhancers().get(0).getOptions()).hasSize(2);
+        assertThat(recipe.getEnhancers().get(0).getOptions().get("enrichMetadata")).isEqualTo("true");
+        assertThat(recipe.getEnhancers().get(0).getOptions().get("validateLicenses")).isEqualTo("false");
+    }
+
+    @Test
+    void shouldHandleBothGeneratorAndEnhancerOptions() {
+        // When
+        RecipeConfig recipe = configurationProvider.getRecipeForTargetType("RPM");
+
+        // Then - Generator options
+        assertThat(recipe.getGenerator().getOptions()).isNotEmpty();
+        assertThat(recipe.getGenerator().getOptions()).containsKeys("includeSystemScope", "outputFormat");
+
+        // Then - Enhancer options
+        assertThat(recipe.getEnhancers().get(0).getOptions()).isNotEmpty();
+        assertThat(recipe.getEnhancers().get(0).getOptions()).containsKeys("enrichMetadata", "validateLicenses");
     }
 }

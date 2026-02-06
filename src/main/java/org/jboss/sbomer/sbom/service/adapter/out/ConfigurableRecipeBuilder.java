@@ -1,13 +1,15 @@
 package org.jboss.sbomer.sbom.service.adapter.out;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jboss.sbomer.events.common.EnhancerSpec;
 import org.jboss.sbomer.events.common.GeneratorSpec;
 import org.jboss.sbomer.events.orchestration.Recipe;
 import org.jboss.sbomer.sbom.service.core.config.ConfigurationProvider;
 import org.jboss.sbomer.sbom.service.core.config.recipe.EnhancerConfig;
+import org.jboss.sbomer.sbom.service.core.config.recipe.GeneratorConfig;
 import org.jboss.sbomer.sbom.service.core.config.recipe.RecipeConfig;
 import org.jboss.sbomer.sbom.service.core.port.spi.RecipeBuilder;
 
@@ -30,33 +32,49 @@ public class ConfigurableRecipeBuilder implements RecipeBuilder {
     public Recipe buildRecipeFor(String type, String identifier) {
         log.debug("Building recipe for type: {}, identifier: {}", type, identifier);
 
-        // Get recipe configuration for this target type
         RecipeConfig recipeConfig = configProvider.getRecipeForTargetType(type);
+        GeneratorSpec generator = buildGenerator(recipeConfig.getGenerator());
+        List<EnhancerSpec> enhancers = buildEnhancers(recipeConfig.getEnhancers());
 
-        // Build GeneratorSpec from config
-        GeneratorSpec generator = GeneratorSpec.newBuilder()
-            .setName(recipeConfig.getGenerator().getName())
-            .setVersion(recipeConfig.getGenerator().getVersion())
-            .build();
-
-        // Build EnhancerSpecs from config
-        List<EnhancerSpec> enhancers = new ArrayList<>();
-        if (recipeConfig.getEnhancers() != null) {
-            for (EnhancerConfig enhancerConfig : recipeConfig.getEnhancers()) {
-                enhancers.add(EnhancerSpec.newBuilder()
-                    .setName(enhancerConfig.getName())
-                    .setVersion(enhancerConfig.getVersion())
-                    .build());
-            }
-        }
-
-        log.debug("Built recipe with generator: {}, enhancers: {}",
-            generator.getName(), enhancers.size());
+        log.debug("Built recipe with generator: {}, enhancers: {}", generator.getName(), enhancers);
 
         return Recipe.newBuilder()
-            .setGenerator(generator)
-            .setEnhancers(enhancers)
-            .build();
+                .setGenerator(generator)
+                .setEnhancers(enhancers)
+                .build();
+    }
+
+    private GeneratorSpec buildGenerator(GeneratorConfig config) {
+        GeneratorSpec.Builder builder = GeneratorSpec.newBuilder()
+                .setName(config.getName())
+                .setVersion(config.getVersion());
+
+        if (config.getOptions() != null) {
+            builder.setOptions(config.getOptions());
+        }
+
+        return builder.build();
+    }
+
+    private List<EnhancerSpec> buildEnhancers(List<EnhancerConfig> configs) {
+        if (configs == null) {
+            return Collections.emptyList();
+        }
+
+        return configs.stream()
+                .map(this::buildEnhancer)
+                .collect(Collectors.toList());
+    }
+
+    private EnhancerSpec buildEnhancer(EnhancerConfig config) {
+        EnhancerSpec.Builder builder = EnhancerSpec.newBuilder()
+                .setName(config.getName())
+                .setVersion(config.getVersion());
+
+        if (config.getOptions() != null) {
+            builder.setOptions(config.getOptions());
+        }
+
+        return builder.build();
     }
 }
-

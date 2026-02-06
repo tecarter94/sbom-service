@@ -38,12 +38,12 @@ public class ConfigurationProvider {
 
     private void loadConfiguration() throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        InputStream is = getClass().getClassLoader()
+        InputStream inputStream = getClass().getClassLoader()
             .getResourceAsStream(configPath);
-        if (is == null) {
+        if (inputStream == null) {
             throw new FileNotFoundException("Config file not found: " + configPath);
         }
-        config = mapper.readValue(is, SbomerConfig.class);
+        config = mapper.readValue(inputStream, SbomerConfig.class);
     }
 
     private void validateConfiguration() {

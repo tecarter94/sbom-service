@@ -1,5 +1,7 @@
 package org.jboss.sbomer.sbom.service.core.config.recipe;
 
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class GeneratorConfig {
     private String name;
     private String version;
+    private Map<String, String> options;
 }
